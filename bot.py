@@ -20,7 +20,7 @@ load_dotenv()
 
 TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 CONTACT_LINK = os.getenv("CONTACT_LINK", "https://t.me/voithos")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPEN_ROUTER")
 
 if not TOKEN:
     raise ValueError("TELEGRAM_BOT_TOKEN не установлен в .env файле")
