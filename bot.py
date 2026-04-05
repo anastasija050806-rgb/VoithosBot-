@@ -1,4 +1,6 @@
 import logging
+import os
+from dotenv import load_dotenv
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import (
     Application,
@@ -12,15 +14,19 @@ from telegram.ext import (
 # ─────────────────────────────────────────
 #  Настройки
 # ─────────────────────────────────────────
-TOKEN = "ВАШ_ТОКЕН_СЮДА"  # Вставьте токен от @BotFather
+load_dotenv()
+
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+CONTACT_LINK = os.getenv("CONTACT_LINK", "https://t.me/voithos")
+
+if not TOKEN:
+    raise ValueError("TELEGRAM_BOT_TOKEN не установлен в .env файле")
 
 logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(message)s",
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
-
-CONTACT_LINK = "https://t.me/ВАШ_ЮЗЕРНЕЙМ"  # Замените на ваш контакт/группу
 
 
 # ─────────────────────────────────────────
@@ -189,15 +195,19 @@ async def unknown_message(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 #  Запуск
 # ─────────────────────────────────────────
 def main() -> None:
-    app = Application.builder().token(TOKEN).build()
+    try:
+        app = Application.builder().token(TOKEN).build()
 
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("menu", menu_command))
-    app.add_handler(CallbackQueryHandler(button_handler))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown_message))
+        app.add_handler(CommandHandler("start", start))
+        app.add_handler(CommandHandler("menu", menu_command))
+        app.add_handler(CallbackQueryHandler(button_handler))
+        app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, unknown_message))
 
-    logger.info("Voithos Bot запущен ✅")
-    app.run_polling(allowed_updates=Update.ALL_TYPES)
+        logger.info("Voithos Bot запущен ✅")
+        app.run_polling(allowed_updates=Update.ALL_TYPES)
+    except Exception as e:
+        logger.error(f"Критическая ошибка бота: {e}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":
