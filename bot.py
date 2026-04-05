@@ -1,6 +1,5 @@
 import logging
 import os
-import json
 import httpx
 from dotenv import load_dotenv
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
@@ -30,6 +29,12 @@ logging.basicConfig(
     level=logging.INFO,
 )
 logger = logging.getLogger(__name__)
+
+# Логируем наличие переменных
+if OPENROUTER_API_KEY:
+    logger.info("OPEN_ROUTER ключ найден ✅")
+else:
+    logger.warning("OPEN_ROUTER ключ не установлен ⚠️ ИИ-консультант недоступен")
 
 # Состояния для ConversationHandler
 CONSULTING = 1
@@ -331,7 +336,14 @@ async def consulting_mode(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 # ─────────────────────────────────────────
 def main() -> None:
     try:
+        logger.info("=" * 50)
+        logger.info("🚀 Инициализация Voithos Bot")
+        logger.info(f"Token установлен: {'✅' if TOKEN else '❌'}")
+        logger.info(f"Contact Link: {CONTACT_LINK}")
+        logger.info(f"OpenRouter API: {'✅' if OPENROUTER_API_KEY else '❌'}")
+
         app = Application.builder().token(TOKEN).build()
+        logger.info("✅ Приложение Telegram создано")
 
         # ConversationHandler для управления состояниями
         conv_handler = ConversationHandler(
@@ -352,11 +364,17 @@ def main() -> None:
         )
 
         app.add_handler(conv_handler)
+        logger.info("✅ Обработчики добавлены")
 
-        logger.info("Voithos Bot запущен ✅")
+        logger.info("=" * 50)
+        logger.info("✅ Voithos Bot запущен и готов к работе!")
+        logger.info("=" * 50)
         app.run_polling(allowed_updates=Update.ALL_TYPES)
     except Exception as e:
-        logger.error(f"Критическая ошибка бота: {e}", exc_info=True)
+        logger.error("=" * 50)
+        logger.error(f"❌ КРИТИЧЕСКАЯ ОШИБКА: {e}")
+        logger.error("=" * 50)
+        logger.error("Полная информация об ошибке:", exc_info=True)
         raise
 
 
